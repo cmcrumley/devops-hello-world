@@ -53,7 +53,8 @@ jobs:
             type=ref,event=tag
             type=sha
 
-      - name: Debug: list files
+      - name: 
+        debug: list files
         run: |
           ls -la
           find . -maxdepth 2 -type f -name 'Dockerfile' -print
