@@ -1,0 +1,32 @@
+name: devops-hello-world
+
+services:
+  web-dev:
+    # Local dev: build from your working tree
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cmcrumley/devops-hello-world:dev
+    environment:
+      - GREETING=Hello from Dev (local)
+    ports:
+      - "8000:8000"
+    profiles: ["dev"]
+
+  web-staging:
+    # Staging: use the published image from CI
+    image: cmcrumley/devops-hello-world:latest
+    environment:
+      - GREETING=Hello from Staging
+    ports:
+      - "8001:8000"
+    profiles: ["staging"]
+
+  web-prod:
+    # Prod: use the same published image, different config
+    image: cmcrumley/devops-hello-world:latest
+    environment:
+      - GREETING=Hello from Prod
+    ports:
+      - "8002:8000"
+    profiles: ["prod"]
