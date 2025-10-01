@@ -53,11 +53,6 @@ jobs:
             type=ref,event=tag
             type=sha
 
-      - name: Debug - list files
-        run: |
-          ls -la
-          find . -maxdepth 2 -type f -name 'Dockerfile' -print
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
