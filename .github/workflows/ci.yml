@@ -20,7 +20,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+
+      - name: Show environment
+        run: |
+          python -V
+          pip -V
+          ls -la
+          echo "Workspace: $GITHUB_WORKSPACE"
 
       - name: Run tests
-        run: pytest -q
+        env:
+          PYTHONPATH: ${{ github.workspace }}   # ensure app.py is importable
+        run: python -m pytest -vv -rA
