@@ -3,8 +3,14 @@ name: Test & Publish Docker
 on:
   push:
     branches: ["main"]
-    tags:
-      - "v*.*.*"   # e.g., v0.2.0
+    with:
+      images: ${{ secrets.DOCKERHUB_USERNAME }}/devops-hello-world
+      tags: |
+        type=raw,value=latest,enable={{is_default_branch}}
+        type=ref,event=tag                    # v0.1.0
+        type=semver,pattern={{version}}       # 0.1.0
+        type=semver,pattern={{major}}.{{minor}}  # 0.1
+        type=sha
   workflow_dispatch:
 
 jobs:
@@ -27,6 +33,11 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python -m pytest -q
+
+      - name: pip-audit (deps)
+        run: |
+          python -m pip install --upgrade pip pip-audit
+          pip-audit -r requirements.txt --strict
 
   docker:
     runs-on: ubuntu-latest
@@ -64,3 +75,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Trivy image scan (fail on HIGH/CRITICAL)
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/devops-hello-world:latest
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
